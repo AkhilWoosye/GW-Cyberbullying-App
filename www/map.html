@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Simple Map</title>
+		<meta name="viewport" content="initial-scale=1.0">
+		<meta charset="utf-8">
+		<style>html, body {height: 100%;margin: 0;padding: 0;}#map {height: 100%;}</style>
+		<script type="text/javascript">
+			if(navigator.geolocation == undefined){
+				alert("Geolocation API not Available");
+			}else{
+				alert("Geolocation API is Available"); 
+				//use the navigator.geolocation object to get the location of the user
+				
+				navigator.geolocation.getCurrentPosition(userLocated, locationError);
+				
+				var map;
+				var infowindow;
+				var service;
+				function userLocated(position){
+					var lat = position.coords.latitude;
+					var lon = position.coords.longitude;
+					
+					
+					map = new google.maps.Map(document.getElementById('map'), {center: {lat:lat, lng:lon}, zoom: 14}); 
+				
+					var marker = new google.maps.Marker({
+						position: {lat:lat, lng:lon},
+						map: map,
+						label: {text: 'You',color: 'black'},
+						draggable: false,
+					})
+					var loc = {lat:lat, lng:lon};
+					
+					infowindow = new google.maps.InfoWindow();
+		
+					var request = {
+						location: loc,
+						radius: '500',
+						query: 'police'
+					};
+
+					service = new google.maps.places.PlacesService(map);
+					service.textSearch(request, callback);
+				}
+				
+				function callback(results, status) {
+					if (status == google.maps.places.PlacesServiceStatus.OK) {
+						for (var i = 0; i < results.length; i++) {
+							createMarker(results[i]);
+						}
+					}
+				}
+
+				
+				function locationError(error){
+					switch(error.code){
+						case error.PERMISSION_DENIED:
+							alert("Permission to use location has been denied");
+							break;
+						case error.POSITION_UNAVAILABLE:
+							alert("Your current location is unavailable");
+							break;
+						case error.TIMEOUT:
+							alert("Request timeout");
+							break;
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="map"></div>
+		
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBneCE3q6yuqybgNYwBLNcrNoSs56dUpsk&callback=userLocated" async defer></script>
+	</body>
+</html>
